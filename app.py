@@ -83,7 +83,7 @@ Provide a thoughtful, meaningful tarot reading interpretation:
 3. Offer practical guidance and insight
 4. Keep it mystical yet grounded and actionable
 
-Respond in French. Keep it concise but profound (3-5 sentences)."""
+Respond in English. Keep it concise but profound (3-5 sentences)."""
 
 def generate_code_verifier():
     return secrets.token_urlsafe(32)
@@ -194,7 +194,7 @@ def read():
     try:
         # Draw 3 random cards (Past, Present, Future)
         drawn_cards = random.sample(ALL_CARDS, 3)
-        positions = ["Passé", "Présent", "Futur"]
+        positions = ["Past", "Present", "Future"]
         
         # Generate interpretations for each card
         interpretations = []

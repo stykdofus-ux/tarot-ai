@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oracle Mystique | Tirage de Tarot IA</title>
+    <title>Oracle Mystique | AI Tarot Reading</title>
     <style>
         :root { 
             --accent: #9b59b6; 
@@ -161,43 +161,43 @@
     <div class="container">
         <header class="header">
             <div class="logo">ORACLE MYSTIQUE</div>
-            <div class="subtitle">Tirage de Tarot par Intelligence Artificielle</div>
+            <div class="subtitle">AI-Powered Tarot Reading</div>
         </header>
 
         <!-- Auth Section -->
         <div class="auth-section" id="authSection">
             <div class="auth-icon">🔮</div>
-            <div class="auth-title">Connectez votre portefeuille</div>
+            <div class="auth-title">Connect Your Wallet</div>
             <div class="auth-desc">
-                Autorisez Oracle Mystique à utiliser vos propres tokens Pollinations pour les tirages de tarot. 
-                Aucun coût pour l'application — vous payez avec votre propre équilibre.
+                Authorize Oracle Mystique to use your own Pollinations tokens for tarot readings. 
+                No cost to the app — you pay with your own balance.
             </div>
-            <a href="/connect" class="connect-btn">Connecter le Portefeuille</a>
+            <a href="/connect" class="connect-btn">Connect Wallet</a>
             <div class="auth-note">
-                🔐 Sécuritaire • Vos tokens ne quittent jamais votre session • BYOP Pollinations
+                🔐 Secure • Your tokens never leave your session • BYOP Pollinations
             </div>
         </div>
 
         <!-- Connected State -->
         <div class="connected-bar" id="connectedBar">
-            <span class="connected-status">✓ Connecté</span>
-            <span style="color: #8b7da8; font-size: 0.85rem;" id="userInfo">Utilisateur</span>
-            <a href="/disconnect" class="disconnect-btn">Se déconnecter</a>
+            <span class="connected-status">✓ Connected</span>
+            <span style="color: #8b7da8; font-size: 0.85rem;" id="userInfo">User</span>
+            <a href="/disconnect" class="disconnect-btn">Disconnect</a>
         </div>
 
         <!-- Reading Section -->
         <div class="reading-section" id="readingSection">
             <div class="question-box">
-                <div class="question-label">Votre question</div>
-                <input type="text" class="question-input" id="questionInput" placeholder="Ex: Quel est mon potentiel dans cette nouvelle opportunité ?">
+                <div class="question-label">Your Question</div>
+                <input type="text" class="question-input" id="questionInput" placeholder="e.g. What is my potential in this new opportunity?">
             </div>
-            <button class="read-btn" id="readBtn">🔮 Tirer les Cartes</button>
+            <button class="read-btn" id="readBtn">🔮 Draw the Cards</button>
             <div class="loader" id="loader"><div class="loader-ring"></div></div>
 
             <!-- Results -->
             <div class="results" id="results">
                 <div class="results-header">
-                    <div class="reading-title">Votre Tirage</div>
+                    <div class="reading-title">Your Reading</div>
                     <div class="reading-question" id="displayQuestion"></div>
                 </div>
                 <div class="card-slider" id="cardSlider"></div>
@@ -205,15 +205,15 @@
 
             <!-- History -->
             <div class="history-section" id="historySection">
-                <div class="history-title">📜 Vos Tirages Récents</div>
+                <div class="history-title">📜 Recent Readings</div>
                 <div class="history-grid" id="historyGrid"></div>
             </div>
         </div>
     </div>
 
     <footer class="footer">
-        Propulsé par <a href="https://pollinations.ai" target="_blank">Pollinations.ai</a> • 
-        Modèle: <a href="https://enter.pollinations.ai" target="_blank">Connect User Wallets (BYOP)</a>
+        Powered by <a href="https://pollinations.ai" target="_blank">Pollinations.ai</a> • 
+        Model: <a href="https://enter.pollinations.ai" target="_blank">Connect User Wallets (BYOP)</a>
     </footer>
 
     <script>
@@ -250,7 +250,7 @@
             }
 
             readBtn.disabled = true;
-            readBtn.textContent = '🃏 Tirage en cours...';
+            readBtn.textContent = '🃏 Drawing...';
             loader.style.display = 'block';
             results.style.display = 'none';
 
@@ -272,13 +272,13 @@
                     // Save to history
                     saveToHistory(data.reading);
                 } else {
-                    alert('Erreur: ' + (data.error || 'Tirage impossible'));
+                    alert('Error: ' + (data.error || 'Reading failed'));
                 }
             } catch (e) {
-                alert('Erreur de connexion: ' + e.message);
+                alert('Connection error: ' + e.message);
             } finally {
                 readBtn.disabled = false;
-                readBtn.textContent = '🔮 Tirer les Cartes';
+                readBtn.textContent = '🔮 Draw the Cards';
                 loader.style.display = 'none';
             }
         });
@@ -294,7 +294,7 @@
                 
                 slide.innerHTML = `
                     <span class="position-badge">${card.position}</span>
-                    <img class="card-image" src="${imgSrc || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 300%22><rect fill=%22%231a1423%22 width=%22200%22 height=%22300%22/><text fill=%22%238b7da8%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2214%22>Carte ${i+1}</text></svg>'}" alt="${card.card_name}">
+                    <img class="card-image" src="${imgSrc || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 300%22><rect fill=%22%231a1423%22 width=%22200%22 height=%22300%22/><text fill=%22%238b7da8%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2214%22>Card ${i+1}</text></svg>'}" alt="${card.card_name}">
                     <div class="card-name">${card.card_name}</div>
                     <div class="card-type">${card.card_type}</div>
                     <div class="card-keywords">${card.keywords}</div>
@@ -310,7 +310,7 @@
             history.unshift({
                 question: reading.question,
                 cards: reading.cards.map(c => c.card_name).join(', '),
-                date: new Date().toLocaleString('fr-FR')
+                date: new Date().toLocaleString()
             });
             history = history.slice(0, 10);
             localStorage.setItem('tarotHistory', JSON.stringify(history));
