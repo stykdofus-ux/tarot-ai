@@ -261,11 +261,13 @@ def read():
                     if img_res.headers.get('Content-Type') == 'application/json':
                         img_data = img_res.json()
                         if "data" in img_data and isinstance(img_data["data"], list) and len(img_data["data"]) > 0 and "b64_json" in img_data["data"][0]:
-                            images.append(base64.b64decode(img_data["data"][0]["b64_json"]))
+                            # Store the base64 STRING (not decoded bytes) for JSON serialization
+                            images.append(img_data["data"][0]["b64_json"])
                         else:
                             images.append(None)
                     else:
-                        images.append(img_res.content)
+                        # Raw image bytes — base64 encode for JSON
+                        images.append(base64.b64encode(img_res.content).decode('ascii'))
                 except Exception:
                     images.append(None)
             else:
