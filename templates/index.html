@@ -4,151 +4,633 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oracle Mystique | AI Tarot Reading</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --accent: #9b59b6; 
-            --accent2: #8e44ad; 
-            --bg: #0d0a0f; 
-            --card: #1a1423; 
-            --card2: #251d33; 
-            --text: #e8dff0; 
-            --gold: #d4af37;
+        :root {
+            --bg-deep: #07060a;
+            --bg-card: linear-gradient(145deg, #141020 0%, #1a1528 100%);
+            --bg-card-hover: linear-gradient(145deg, #1c1830 0%, #221d3a 100%);
+            --text-primary: #e8e4f0;
+            --text-muted: #9a8fb8;
+            --text-dim: #6b5f85;
+            --accent-purple: #8b6fc0;
+            --accent-glow: #a78bfa;
+            --gold: #c9a96e;
+            --gold-light: #dfc08a;
+            --border-subtle: rgba(139, 111, 192, 0.15);
+            --border-accent: rgba(139, 111, 192, 0.35);
+            --shadow-card: 0 8px 40px rgba(0, 0, 0, 0.5), 0 2px 10px rgba(139, 111, 192, 0.08);
+            --shadow-glow: 0 0 30px rgba(139, 111, 192, 0.15), 0 0 60px rgba(139, 111, 192, 0.05);
         }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            background: var(--bg); 
-            color: var(--text); 
-            font-family: 'Georgia', 'Times New Roman', serif; 
+
+        body {
+            background: var(--bg-deep);
+            background-image: 
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(139, 111, 192, 0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 30% 100%, rgba(201, 169, 110, 0.04) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 70% 80%, rgba(167, 139, 250, 0.03) 0%, transparent 50%);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, sans-serif;
             min-height: 100vh;
-            background-image: radial-gradient(ellipse at top, #1a1423 0%, #0d0a0f 70%);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        
-        .header { text-align: center; padding: 30px 0; border-bottom: 1px solid #2a2035; margin-bottom: 20px; }
-        .logo { font-size: 2.2rem; font-weight: bold; background: linear-gradient(135deg, var(--gold), #f0e68c, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px; }
-        .subtitle { color: #8b7da8; font-style: italic; margin-top: 5px; font-size: 0.9rem; }
-        
-        .auth-section { 
-            background: linear-gradient(135deg, var(--card), var(--card2)); 
-            border: 1px solid #3a2d4a; 
-            border-radius: 16px; 
-            padding: 30px; 
+
+        /* Subtle floating particles */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: 
+                radial-gradient(1px 1px at 20% 30%, rgba(139, 111, 192, 0.3), transparent),
+                radial-gradient(1px 1px at 40% 70%, rgba(201, 169, 110, 0.2), transparent),
+                radial-gradient(1px 1px at 60% 20%, rgba(167, 139, 250, 0.25), transparent),
+                radial-gradient(1px 1px at 80% 60%, rgba(139, 111, 192, 0.2), transparent),
+                radial-gradient(1px 1px at 10% 80%, rgba(201, 169, 110, 0.15), transparent),
+                radial-gradient(1px 1px at 70% 40%, rgba(167, 139, 250, 0.2), transparent);
+            background-size: 200px 200px;
+            animation: drift 60s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes drift {
+            0% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-20px) translateX(10px); }
+            100% { transform: translateY(0) translateX(0); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 24px 20px 40px;
+        }
+
+        /* Header */
+        .header {
             text-align: center;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(155, 89, 182, 0.15);
+            padding: 20px 0 32px;
         }
-        .auth-icon { font-size: 3rem; margin-bottom: 15px; }
-        .auth-title { font-size: 1.3rem; margin-bottom: 10px; color: var(--gold); }
-        .auth-desc { color: #8b7da8; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+
+        .logo {
+            font-family: 'Cinzel', serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: 6px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 40%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            display: inline-block;
+            padding: 0 8px;
+        }
+
+        .logo::after {
+            content: '✦';
+            position: absolute;
+            top: -8px;
+            right: -20px;
+            font-size: 0.6rem;
+            color: var(--accent-glow);
+            -webkit-text-fill-color: var(--accent-glow);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .subtitle span {
+            color: var(--gold);
+            font-weight: 500;
+        }
+
+        /* Decorative divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 28px 0 24px;
+        }
+
+        .divider-line {
+            flex: 1;
+            max-width: 80px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-accent), transparent);
+        }
+
+        .divider-icon {
+            color: var(--gold);
+            font-size: 0.7rem;
+            opacity: 0.6;
+        }
+
+        /* Auth Card */
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 36px 32px;
+            text-align: center;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0.5;
+        }
+
+        .auth-card:hover {
+            border-color: var(--border-accent);
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+        }
+
+        .auth-icon {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            display: block;
+            filter: drop-shadow(0 0 20px rgba(139, 111, 192, 0.3));
+        }
+
+        .auth-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.35rem;
+            color: var(--gold);
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .auth-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
         .connect-btn {
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: white; padding: 14px 32px; border-radius: 10px;
-            text-decoration: none; font-weight: bold; font-size: 1rem;
-            display: inline-block; transition: all 0.3s; cursor: pointer; border: none;
-            font-family: inherit; letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-glow) 100%);
+            color: white;
+            padding: 14px 36px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            display: inline-block;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(139, 111, 192, 0.3);
         }
-        .connect-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(155, 89, 182, 0.4); }
-        .auth-note { font-size: 0.75rem; color: #6b5d7a; margin-top: 15px; }
-        
+
+        .connect-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .connect-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 111, 192, 0.4);
+        }
+
+        .connect-btn:hover::before {
+            opacity: 1;
+        }
+
+        .auth-note {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .auth-note .lock-icon {
+            font-size: 0.65rem;
+        }
+
+        /* Connected Bar */
+        .connected-bar {
+            display: none;
+            background: linear-gradient(90deg, rgba(139, 111, 192, 0.1), rgba(139, 111, 192, 0.05));
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .connected-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #7dcd8e;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .connected-status .dot {
+            width: 8px;
+            height: 8px;
+            background: #7dcd8e;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(125, 205, 142, 0.5);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.85); }
+        }
+
+        .connected-info {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+
+        .disconnect-btn {
+            background: transparent;
+            color: #c45a5a;
+            border: 1px solid rgba(196, 90, 90, 0.3);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .disconnect-btn:hover {
+            background: rgba(196, 90, 90, 0.1);
+            border-color: rgba(196, 90, 90, 0.5);
+        }
+
+        /* Reading Section */
         .reading-section { display: none; }
-        
+
         .question-box {
-            background: var(--card); border: 1px solid #3a2d4a; border-radius: 12px;
-            padding: 20px; margin-bottom: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-card);
         }
-        .question-label { font-size: 0.8rem; color: #8b7da8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-        .question-input { 
-            width: 100%; padding: 14px; background: #0d0a0f; border: 1px solid #3a2d4a;
-            color: var(--text); border-radius: 8px; font-family: inherit; font-size: 1rem;
+
+        .question-label {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
         }
-        .question-input:focus { outline: none; border-color: var(--accent); }
-        
+
+        .question-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(7, 6, 10, 0.6);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .question-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .question-input:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 3px rgba(139, 111, 192, 0.15);
+        }
+
         .read-btn {
-            width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: white; border: none; border-radius: 10px; font-weight: bold;
-            font-size: 1.1rem; cursor: pointer; transition: all 0.3s; font-family: inherit;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2d1b4e 0%, #1a1028 100%);
+            color: var(--gold);
+            border: 1px solid var(--border-accent);
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+        }
+
+        .read-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(201, 169, 110, 0.1) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .read-btn:hover:not(:disabled) {
+            border-color: var(--gold);
+            box-shadow: var(--shadow-card), 0 0 20px rgba(201, 169, 110, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .read-btn:hover:not(:disabled)::after {
+            opacity: 1;
+        }
+
+        .read-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .read-btn .btn-icon {
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        /* Results */
+        .results {
+            margin-top: 32px;
+            display: none;
+            animation: fadeUp 0.6s ease-out;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .reading-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 6px;
+        }
+
+        .reading-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            color: var(--gold);
             letter-spacing: 2px;
         }
-        .read-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(155, 89, 182, 0.4); }
-        .read-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        
-        .results { margin-top: 30px; display: none; }
-        .results-header { text-align: center; margin-bottom: 25px; }
-        .reading-title { font-size: 1.5rem; color: var(--gold); margin-bottom: 5px; }
-        .reading-question { color: #8b7da8; font-style: italic; }
-        
-        .card-slider { position: relative; margin-bottom: 30px; }
+
+        .reading-question {
+            color: var(--text-muted);
+            font-style: italic;
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+
+        /* Card Slider */
+        .card-slider {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
         .card-slide {
-            background: var(--card); border: 1px solid #3a2d4a; border-radius: 16px;
-            padding: 25px; margin-bottom: 20px; text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            animation: fadeIn 0.5s ease-in;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.5s ease-out backwards;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
+
+        .card-slide:nth-child(1) { animation-delay: 0.1s; }
+        .card-slide:nth-child(2) { animation-delay: 0.2s; }
+        .card-slide:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0.3;
+        }
+
         .position-badge {
-            display: inline-block; padding: 5px 15px; border-radius: 20px;
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;
-            margin-bottom: 15px; background: rgba(155, 89, 182, 0.2); color: var(--accent);
-            border: 1px solid rgba(155, 89, 182, 0.3);
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
+            margin-bottom: 14px;
+            background: rgba(201, 169, 110, 0.1);
+            color: var(--gold);
+            border: 1px solid rgba(201, 169, 110, 0.2);
         }
-        
-        .card-image { 
-            width: 100%; max-width: 300px; height: auto; margin: 0 auto 15px;
-            border-radius: 8px; border: 2px solid #3a2d4a; }
-        
-        .card-name { font-size: 1.4rem; color: var(--gold); margin-bottom: 5px; font-weight: bold; }
-        .card-type { font-size: 0.8rem; color: #8b7da8; margin-bottom: 15px; }
-        .card-keywords { font-size: 0.85rem; color: #b8a9d0; font-style: italic; margin-bottom: 15px; }
-        
-        .card-interpretation { 
-            text-align: left; line-height: 1.7; color: #d0c5e0; font-size: 0.95rem; }
-        .card-interpretation p { margin-bottom: 10px; }
-        
+
+        .card-image-container {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .card-image {
+            width: 100%;
+            max-width: 260px;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid var(--border-subtle);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: border-color 0.3s;
+        }
+
+        .card-image:hover {
+            border-color: var(--border-accent);
+        }
+
         .card-image-loader {
-            display: inline-block; width: 30px; height: 30px;
-            border: 3px solid #3a2d4a; border-top-color: var(--accent);
-            border-radius: 50%; animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--accent-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
         }
-        
-        .connected-bar {
-            display: none; background: rgba(155, 89, 182, 0.15); border: 1px solid rgba(155, 89, 182, 0.3);
-            border-radius: 8px; padding: 10px 15px; margin-bottom: 20px; align-items: center;
+
+        .card-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            color: var(--gold);
+            margin-bottom: 4px;
+            letter-spacing: 1px;
         }
-        .connected-status { color: #00ff88; font-size: 0.85rem; margin-right: 10px; }
-        .disconnect-btn {
-            background: transparent; color: #ff6b6b; border: 1px solid #ff6b6b;
-            padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 0.8rem;
-            text-decoration: none; font-family: inherit;
+
+        .card-type {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .disconnect-btn:hover { background: rgba(255, 107, 107, 0.1); }
-        
-        .footer { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #2a2035; font-size: 0.8rem; color: #6b5d7a; }
-        .footer a { color: var(--accent); text-decoration: none; }
-        
-        .loader { display: none; margin: 20px auto; width: 50px; height: 50px; }
-        .loader-ring { 
-            width: 50px; height: 50px; border: 3px solid #2a2035; border-top-color: var(--accent);
-            border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;
+
+        .card-keywords {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-bottom: 14px;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .history-section { margin-top: 30px; display: none; }
-        .history-title { font-size: 1.1rem; color: var(--gold); margin-bottom: 15px; text-align: center; }
-        .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-        .history-card { 
-            background: var(--card); border: 1px solid #3a2d4a; border-radius: 8px;
-            padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s;
+
+        .card-interpretation {
+            text-align: left;
+            line-height: 1.65;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 300;
         }
-        .history-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-        .history-card-name { font-size: 0.85rem; color: var(--gold); margin-bottom: 3px; }
-        .history-card-date { font-size: 0.7rem; color: #6b5d7a; }
-        
+
+        .card-interpretation p {
+            margin-bottom: 8px;
+        }
+
+        .card-interpretation p:last-child {
+            margin-bottom: 0;
+        }
+
+        .image-unavailable {
+            color: #c45a5a;
+            font-size: 0.78rem;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 36px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-subtle);
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .footer a {
+            color: var(--accent-purple);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: var(--accent-glow);
+        }
+
+        .footer .credit {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Responsive */
         @media (max-width: 480px) {
-            .container { padding: 15px; }
-            .auth-section { padding: 20px; }
-            .logo { font-size: 1.8rem; }
+            .container { padding: 16px 14px 30px; }
+            .logo { font-size: 2rem; letter-spacing: 4px; }
+            .auth-card { padding: 28px 22px; }
+            .card-image { max-width: 220px; }
+        }
+
+        /* Loading spinner for the main button */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(201, 169, 110, 0.3);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-deep);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-accent);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-purple);
         }
     </style>
 </head>
@@ -156,54 +638,71 @@
     <div class="container">
         <header class="header">
             <div class="logo">ORACLE MYSTIQUE</div>
-            <div class="subtitle">AI-Powered Tarot Reading</div>
+            <div class="subtitle"><span>✦</span> AI-Powered Tarot Reading <span>✦</span></div>
         </header>
 
-        <div class="auth-section" id="authSection">
-            <div class="auth-icon">🔮</div>
+        <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-icon">◇</span>
+            <div class="divider-line"></div>
+        </div>
+
+        <div class="auth-card" id="authSection">
+            <span class="auth-icon">🔮</span>
             <div class="auth-title">Connect Your Wallet</div>
             <div class="auth-desc">
                 Authorize Oracle Mystique to use your own Pollinations tokens for tarot readings. 
-                No cost to the app — you pay with your own balance.
+                You control your balance — no cost to the app itself.
             </div>
             <a href="/connect" class="connect-btn">Connect Wallet</a>
             <div class="auth-note">
-                🔐 Secure • Your tokens never leave your session • BYOP Pollinations
+                <span class="lock-icon">🔐</span>
+                Secure • Your tokens stay in your session • BYOP
             </div>
         </div>
 
         <div class="connected-bar" id="connectedBar">
-            <span class="connected-status">✓ Connected</span>
-            <span style="color: #8b7da8; font-size: 0.85rem;" id="userInfo">User</span>
+            <div class="connected-status">
+                <span class="dot"></span>
+                Connected
+            </div>
+            <div class="connected-info">Your wallet is linked</div>
             <a href="/disconnect" class="disconnect-btn">Disconnect</a>
         </div>
 
         <div class="reading-section" id="readingSection">
             <div class="question-box">
                 <div class="question-label">Your Question</div>
-                <input type="text" class="question-input" id="questionInput" placeholder="e.g. What is my potential in this new opportunity?">
+                <input type="text" class="question-input" id="questionInput" placeholder="Ask anything... e.g. What does my future hold?">
             </div>
-            <button class="read-btn" id="readBtn">🔮 Draw the Cards</button>
+            <button class="read-btn" id="readBtn">
+                <span class="btn-icon">🔮</span> Draw the Cards
+            </button>
             <div class="loader" id="loader"><div class="loader-ring"></div></div>
 
             <div class="results" id="results">
                 <div class="results-header">
-                    <div class="reading-title">Your Reading</div>
+                    <div class="reading-label">Your Reading</div>
+                    <div class="reading-title">✦ Three Cards ✦</div>
                     <div class="reading-question" id="displayQuestion"></div>
                 </div>
                 <div class="card-slider" id="cardSlider"></div>
             </div>
 
             <div class="history-section" id="historySection">
-                <div class="history-title">📜 Recent Readings</div>
+                <div class="history-title" style="font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold);text-align:center;margin-bottom:16px;">📜 Recent Readings</div>
                 <div class="history-grid" id="historyGrid"></div>
             </div>
         </div>
     </div>
 
     <footer class="footer">
-        Powered by <a href="https://pollinations.ai" target="_blank">Pollinations.ai</a> • 
-        Model: <a href="https://enter.pollinations.ai" target="_blank">Connect User Wallets (BYOP)</a>
+        <div class="credit">
+            <span>Powered by</span>
+            <a href="https://pollinations.ai" target="_blank">Pollinations.ai</a>
+            <span>•</span>
+            <a href="https://enter.pollinations.ai" target="_blank">BYOP OAuth2</a>
+        </div>
     </footer>
 
     <script>
@@ -231,18 +730,17 @@
         readBtn.addEventListener('click', async () => {
             const question = questionInput.value.trim();
             if (!question) {
-                questionInput.style.borderColor = '#ff6b6b';
+                questionInput.style.borderColor = '#c45a5a';
                 setTimeout(() => questionInput.style.borderColor = '', 2000);
                 return;
             }
 
             readBtn.disabled = true;
-            readBtn.textContent = '🃏 Drawing...';
+            readBtn.innerHTML = '<span class="spinner"></span> Drawing...';
             loader.style.display = 'block';
             results.style.display = 'none';
 
             try {
-                // Step 1: Get the reading metadata
                 const readRes = await fetch('/read', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -254,7 +752,7 @@
                 if (!readRes.ok || !readData.success) {
                     alert('Error: ' + (readData.error || 'Reading failed'));
                     readBtn.disabled = false;
-                    readBtn.textContent = '🔮 Draw the Cards';
+                    readBtn.innerHTML = '<span class="btn-icon">🔮</span> Draw the Cards';
                     loader.style.display = 'none';
                     return;
                 }
@@ -263,7 +761,6 @@
                 cardSlider.innerHTML = '';
                 results.style.display = 'block';
 
-                // Step 2: Generate images for each card
                 const cards = readData.reading.cards;
                 for (let i = 0; i < cards.length; i++) {
                     const card = cards[i];
@@ -271,59 +768,55 @@
                     slide.className = 'card-slide';
                     slide.style.animationDelay = `${i * 0.15}s`;
                     
-                    // Show loading state
                     slide.innerHTML = `
                         <span class="position-badge">${card.position}</span>
-                        <div class="card-image-loader"></div>
+                        <div class="card-image-container">
+                            <div class="card-image-loader"></div>
+                        </div>
                         <div class="card-name">${card.card_name}</div>
                         <div class="card-type">${card.card_type}</div>
                         <div class="card-keywords">${card.keywords}</div>
-                        <div class="card-interpretation">${card.interpretation}</div>
+                        <div class="card-interpretation"><p>${card.interpretation}</p></div>
                     `;
                     cardSlider.appendChild(slide);
 
-                    // Generate image for this card
                     try {
                         const imgRes = await fetch('/generate-image', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                card_name: card.card_name,
-                                keywords: card.keywords
-                            })
+                            body: JSON.stringify({ card_name: card.card_name, keywords: card.keywords })
                         });
 
                         const imgData = await imgRes.json();
 
                         if (imgRes.ok && imgData.success && imgData.image) {
-                            // Replace the loading placeholder with the actual image
-                            const imgElement = document.createElement('img');
-                            imgElement.className = 'card-image';
-                            imgElement.src = `data:image/jpeg;base64,${imgData.image}`;
-                            imgElement.alt = card.card_name;
-                            
-                            const loaderElement = slide.querySelector('.card-image-loader');
-                            if (loaderElement) {
-                                loaderElement.replaceWith(imgElement);
+                            const imgContainer = slide.querySelector('.card-image-container');
+                            const loaderEl = imgContainer.querySelector('.card-image-loader');
+                            if (loaderEl) {
+                                const img = document.createElement('img');
+                                img.className = 'card-image';
+                                img.src = `data:image/jpeg;base64,${imgData.image}`;
+                                img.alt = card.card_name;
+                                loaderEl.replaceWith(img);
                             }
                         } else {
-                            // Remove loader and show error
-                            const loaderElement = slide.querySelector('.card-image-loader');
-                            if (loaderElement) {
-                                const errorP = document.createElement('p');
-                                errorP.style.cssText = 'color:#ff6b6b;font-size:0.8rem;margin-top:10px;';
-                                errorP.textContent = '⚠ Image unavailable';
-                                loaderElement.replaceWith(errorP);
+                            const imgContainer = slide.querySelector('.card-image-container');
+                            const loaderEl = imgContainer.querySelector('.card-image-loader');
+                            if (loaderEl) {
+                                const err = document.createElement('div');
+                                err.className = 'image-unavailable';
+                                err.innerHTML = '⚠ Image unavailable';
+                                loaderEl.replaceWith(err);
                             }
                         }
                     } catch (imgErr) {
-                        console.error('Image generation error for card', i, imgErr);
-                        const loaderElement = slide.querySelector('.card-image-loader');
-                        if (loaderElement) {
-                            const errorP = document.createElement('p');
-                            errorP.style.cssText = 'color:#ff6b6b;font-size:0.8rem;margin-top:10px;';
-                            errorP.textContent = '⚠ Image error';
-                            loaderElement.replaceWith(errorP);
+                        const imgContainer = slide.querySelector('.card-image-container');
+                        const loaderEl = imgContainer.querySelector('.card-image-loader');
+                        if (loaderEl) {
+                            const err = document.createElement('div');
+                            err.className = 'image-unavailable';
+                            err.innerHTML = '⚠ Image error';
+                            loaderEl.replaceWith(err);
                         }
                     }
                 }
@@ -334,7 +827,7 @@
                 alert('Connection error: ' + e.message);
             } finally {
                 readBtn.disabled = false;
-                readBtn.textContent = '🔮 Draw the Cards';
+                readBtn.innerHTML = '<span class="btn-icon">🔮</span> Draw the Cards';
                 loader.style.display = 'none';
             }
         });
