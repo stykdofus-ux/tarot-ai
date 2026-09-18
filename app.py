@@ -12,7 +12,7 @@ app.secret_key = secrets.token_hex(32)
 
 # --- CONFIGURATION ---
 APP_KEY = "pk_I7Juq9TCkV9jG1wL"
-APP_REDIRECT_URI = "https://tarot-ai-production.up.railway.app/callback"
+APP_REDIRECT_URI = "https://web-production-823a3.up.railway.app/callback"
 POLLINATIONS_AUTHORIZE_URL = "https://enter.pollinations.ai/authorize"
 POLLINATIONS_TOKEN_URL = "https://enter.pollinations.ai/api/oauth/token"
 IMAGE_API_URL = "https://gen.pollinations.ai/v1/images/generations"
