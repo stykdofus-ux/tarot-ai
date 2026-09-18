@@ -217,10 +217,13 @@ def read():
             )
             
             if text_res.status_code == 200:
-                text_data = text_res.json()
-                interpretation = text_data.get("choices", [{}])[0].get("message", {}).get("content", "Lecture indisponible")
+                try:
+                    text_data = text_res.json()
+                    interpretation = text_data.get("choices", [{}])[0].get("message", {}).get("content", "Reading unavailable")
+                except Exception:
+                    interpretation = "Reading unavailable (invalid response)"
             else:
-                interpretation = f"[Erreur de lecture: {text_res.status_code}]"
+                interpretation = f"[Reading error: {text_res.status_code}]"
             
             interpretations.append({
                 "card": card,
@@ -254,14 +257,17 @@ def read():
             )
             
             if img_res.status_code == 200:
-                if img_res.headers.get('Content-Type') == 'application/json':
-                    img_data = img_res.json()
-                    if "data" in img_data and "b64_json" in img_data["data"][0]:
-                        images.append(base64.b64decode(img_data["data"][0]["b64_json"]))
+                try:
+                    if img_res.headers.get('Content-Type') == 'application/json':
+                        img_data = img_res.json()
+                        if "data" in img_data and isinstance(img_data["data"], list) and len(img_data["data"]) > 0 and "b64_json" in img_data["data"][0]:
+                            images.append(base64.b64decode(img_data["data"][0]["b64_json"]))
+                        else:
+                            images.append(None)
                     else:
-                        images.append(None)
-                else:
-                    images.append(img_res.content)
+                        images.append(img_res.content)
+                except Exception:
+                    images.append(None)
             else:
                 images.append(None)
         
@@ -269,12 +275,12 @@ def read():
             "success": True,
             "reading": {
                 "question": question,
-                "draw_date": secrets.token_hex(8),  # pseudo-date for display
+                "draw_date": secrets.token_hex(8),
                 "cards": [
                     {
                         "position": interpretations[i]["position"],
                         "card_name": interpretations[i]["card"]["name"],
-                        "card_type": "Arcane Majeur" if interpretations[i]["card"] in MAJOR_ARCANA else "Arcane Mineur",
+                        "card_type": "Major Arcana" if interpretations[i]["card"] in MAJOR_ARCANA else "Minor Arcana",
                         "keywords": interpretations[i]["card"].get("keywords", ""),
                         "interpretation": interpretations[i]["interpretation"],
                         "image": images[i] if images[i] else None
