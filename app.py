@@ -3,6 +3,7 @@ import requests
 import io
 import os
 import secrets
+import random
 import hashlib
 import base64
 from urllib.parse import urlencode
@@ -192,7 +193,7 @@ def read():
     
     try:
         # Draw 3 random cards (Past, Present, Future)
-        drawn_cards = secrets.sample(ALL_CARDS, 3)
+        drawn_cards = random.sample(ALL_CARDS, 3)
         positions = ["Passé", "Présent", "Futur"]
         
         # Generate interpretations for each card
