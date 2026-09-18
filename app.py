@@ -9,7 +9,8 @@ import base64
 from urllib.parse import urlencode
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(32)
+# Use a fixed secret key so sessions survive across deployments
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'oracle-mystique-secret-key-2026')
 
 # --- CONFIGURATION ---
 APP_KEY = "pk_B1ajqj2fxCArV7du"
