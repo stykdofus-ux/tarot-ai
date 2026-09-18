@@ -24,12 +24,10 @@
         }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
         
-        /* Header */
         .header { text-align: center; padding: 30px 0; border-bottom: 1px solid #2a2035; margin-bottom: 20px; }
         .logo { font-size: 2.2rem; font-weight: bold; background: linear-gradient(135deg, var(--gold), #f0e68c, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px; }
         .subtitle { color: #8b7da8; font-style: italic; margin-top: 5px; font-size: 0.9rem; }
         
-        /* Auth Section */
         .auth-section { 
             background: linear-gradient(135deg, var(--card), var(--card2)); 
             border: 1px solid #3a2d4a; 
@@ -52,7 +50,6 @@
         .connect-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(155, 89, 182, 0.4); }
         .auth-note { font-size: 0.75rem; color: #6b5d7a; margin-top: 15px; }
         
-        /* Reading Section */
         .reading-section { display: none; }
         
         .question-box {
@@ -75,7 +72,6 @@
         .read-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(155, 89, 182, 0.4); }
         .read-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         
-        /* Results */
         .results { margin-top: 30px; display: none; }
         .results-header { text-align: center; margin-bottom: 25px; }
         .reading-title { font-size: 1.5rem; color: var(--gold); margin-bottom: 5px; }
@@ -109,7 +105,13 @@
             text-align: left; line-height: 1.7; color: #d0c5e0; font-size: 0.95rem; }
         .card-interpretation p { margin-bottom: 10px; }
         
-        /* Connected state */
+        .card-image-loader {
+            display: inline-block; width: 30px; height: 30px;
+            border: 3px solid #3a2d4a; border-top-color: var(--accent);
+            border-radius: 50%; animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
         .connected-bar {
             display: none; background: rgba(155, 89, 182, 0.15); border: 1px solid rgba(155, 89, 182, 0.3);
             border-radius: 8px; padding: 10px 15px; margin-bottom: 20px; align-items: center;
@@ -122,11 +124,9 @@
         }
         .disconnect-btn:hover { background: rgba(255, 107, 107, 0.1); }
         
-        /* Footer */
         .footer { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #2a2035; font-size: 0.8rem; color: #6b5d7a; }
         .footer a { color: var(--accent); text-decoration: none; }
         
-        /* Loader */
         .loader { display: none; margin: 20px auto; width: 50px; height: 50px; }
         .loader-ring { 
             width: 50px; height: 50px; border: 3px solid #2a2035; border-top-color: var(--accent);
@@ -134,7 +134,6 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* History */
         .history-section { margin-top: 30px; display: none; }
         .history-title { font-size: 1.1rem; color: var(--gold); margin-bottom: 15px; text-align: center; }
         .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
@@ -146,15 +145,11 @@
         .history-card-name { font-size: 0.85rem; color: var(--gold); margin-bottom: 3px; }
         .history-card-date { font-size: 0.7rem; color: #6b5d7a; }
         
-        /* Responsive */
         @media (max-width: 480px) {
             .container { padding: 15px; }
             .auth-section { padding: 20px; }
             .logo { font-size: 1.8rem; }
         }
-        
-        /* Decorative */
-        .moon-phase { position: fixed; top: 20px; right: 20px; width: 50px; height: 50px; opacity: 0.15; }
     </style>
 </head>
 <body>
@@ -164,7 +159,6 @@
             <div class="subtitle">AI-Powered Tarot Reading</div>
         </header>
 
-        <!-- Auth Section -->
         <div class="auth-section" id="authSection">
             <div class="auth-icon">🔮</div>
             <div class="auth-title">Connect Your Wallet</div>
@@ -178,14 +172,12 @@
             </div>
         </div>
 
-        <!-- Connected State -->
         <div class="connected-bar" id="connectedBar">
             <span class="connected-status">✓ Connected</span>
             <span style="color: #8b7da8; font-size: 0.85rem;" id="userInfo">User</span>
             <a href="/disconnect" class="disconnect-btn">Disconnect</a>
         </div>
 
-        <!-- Reading Section -->
         <div class="reading-section" id="readingSection">
             <div class="question-box">
                 <div class="question-label">Your Question</div>
@@ -194,7 +186,6 @@
             <button class="read-btn" id="readBtn">🔮 Draw the Cards</button>
             <div class="loader" id="loader"><div class="loader-ring"></div></div>
 
-            <!-- Results -->
             <div class="results" id="results">
                 <div class="results-header">
                     <div class="reading-title">Your Reading</div>
@@ -203,7 +194,6 @@
                 <div class="card-slider" id="cardSlider"></div>
             </div>
 
-            <!-- History -->
             <div class="history-section" id="historySection">
                 <div class="history-title">📜 Recent Readings</div>
                 <div class="history-grid" id="historyGrid"></div>
@@ -229,11 +219,8 @@
         const cardSlider = document.getElementById('cardSlider');
         const historyGrid = document.getElementById('historyGrid');
 
-        // Check if logged in (Flask passes this)
         const loggedIn = {{ logged_in | tojson }};
-        if (loggedIn) {
-            showConnected();
-        }
+        if (loggedIn) showConnected();
 
         function showConnected() {
             authSection.style.display = 'none';
@@ -255,25 +242,94 @@
             results.style.display = 'none';
 
             try {
-                const res = await fetch('/read', {
+                // Step 1: Get the reading metadata
+                const readRes = await fetch('/read', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ question })
                 });
 
-                const data = await res.json();
+                const readData = await readRes.json();
 
-                if (res.ok && data.success) {
-                    displayQuestion.textContent = `"${data.reading.question}"`;
-                    renderCards(data.reading.cards);
-                    results.style.display = 'block';
-                    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    
-                    // Save to history
-                    saveToHistory(data.reading);
-                } else {
-                    alert('Error: ' + (data.error || 'Reading failed'));
+                if (!readRes.ok || !readData.success) {
+                    alert('Error: ' + (readData.error || 'Reading failed'));
+                    readBtn.disabled = false;
+                    readBtn.textContent = '🔮 Draw the Cards';
+                    loader.style.display = 'none';
+                    return;
                 }
+
+                displayQuestion.textContent = `"${readData.reading.question}"`;
+                cardSlider.innerHTML = '';
+                results.style.display = 'block';
+
+                // Step 2: Generate images for each card
+                const cards = readData.reading.cards;
+                for (let i = 0; i < cards.length; i++) {
+                    const card = cards[i];
+                    const slide = document.createElement('div');
+                    slide.className = 'card-slide';
+                    slide.style.animationDelay = `${i * 0.15}s`;
+                    
+                    // Show loading state
+                    slide.innerHTML = `
+                        <span class="position-badge">${card.position}</span>
+                        <div class="card-image-loader"></div>
+                        <div class="card-name">${card.card_name}</div>
+                        <div class="card-type">${card.card_type}</div>
+                        <div class="card-keywords">${card.keywords}</div>
+                        <div class="card-interpretation">${card.interpretation}</div>
+                    `;
+                    cardSlider.appendChild(slide);
+
+                    // Generate image for this card
+                    try {
+                        const imgRes = await fetch('/generate-image', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                card_name: card.card_name,
+                                keywords: card.keywords
+                            })
+                        });
+
+                        const imgData = await imgRes.json();
+
+                        if (imgRes.ok && imgData.success && imgData.image) {
+                            // Replace the loading placeholder with the actual image
+                            const imgElement = document.createElement('img');
+                            imgElement.className = 'card-image';
+                            imgElement.src = `data:image/jpeg;base64,${imgData.image}`;
+                            imgElement.alt = card.card_name;
+                            
+                            const loaderElement = slide.querySelector('.card-image-loader');
+                            if (loaderElement) {
+                                loaderElement.replaceWith(imgElement);
+                            }
+                        } else {
+                            // Remove loader and show error
+                            const loaderElement = slide.querySelector('.card-image-loader');
+                            if (loaderElement) {
+                                const errorP = document.createElement('p');
+                                errorP.style.cssText = 'color:#ff6b6b;font-size:0.8rem;margin-top:10px;';
+                                errorP.textContent = '⚠ Image unavailable';
+                                loaderElement.replaceWith(errorP);
+                            }
+                        }
+                    } catch (imgErr) {
+                        console.error('Image generation error for card', i, imgErr);
+                        const loaderElement = slide.querySelector('.card-image-loader');
+                        if (loaderElement) {
+                            const errorP = document.createElement('p');
+                            errorP.style.cssText = 'color:#ff6b6b;font-size:0.8rem;margin-top:10px;';
+                            errorP.textContent = '⚠ Image error';
+                            loaderElement.replaceWith(errorP);
+                        }
+                    }
+                }
+
+                results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                saveToHistory(readData.reading);
             } catch (e) {
                 alert('Connection error: ' + e.message);
             } finally {
@@ -282,29 +338,6 @@
                 loader.style.display = 'none';
             }
         });
-
-        function renderCards(cards) {
-            cardSlider.innerHTML = '';
-            cards.forEach((card, i) => {
-                const slide = document.createElement('div');
-                slide.className = 'card-slide';
-                slide.style.animationDelay = `${i * 0.2}s`;
-                
-                const imgSrc = card.image_url ? card.image_url : '';
-                
-                slide.innerHTML = `
-                    <span class="position-badge">${card.position}</span>
-                    <img class="card-image" src="${imgSrc || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 300%22><rect fill=%22%231a1423%22 width=%22200%22 height=%22300%22/><text fill=%22%238b7da8%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2214%22>Card ${i+1}</text></svg>'}" alt="${card.card_name}">
-                    <div class="card-name">${card.card_name}</div>
-                    <div class="card-type">${card.card_type}</div>
-                    <div class="card-keywords">${card.keywords}</div>
-                    <div class="card-interpretation">${card.interpretation}</div>
-                    ${card.image_url ? '' : '<p style="color:#ff6b6b;font-size:0.8rem;margin-top:10px;">⚠ Image unavailable</p>'}
-                `;
-                
-                cardSlider.appendChild(slide);
-            });
-        }
 
         function saveToHistory(reading) {
             let history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');

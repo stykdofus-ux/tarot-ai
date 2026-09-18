@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, jsonify, url_for, session, redirect, send_from_directory
+from flask import Flask, render_template, request, send_file, jsonify, url_for, session, redirect
 import requests
 import io
 import os
@@ -6,31 +6,11 @@ import secrets
 import random
 import hashlib
 import base64
-import time
 from urllib.parse import urlencode
-from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 # Use a fixed secret key so sessions survive across deployments
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'oracle-mystique-secret-key-2026')
-
-# Storage for generated images (in production, use S3 or similar)
-IMAGE_STORAGE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'generated_images')
-os.makedirs(IMAGE_STORAGE_DIR, exist_ok=True)
-
-# Cleanup old images periodically (called on each request)
-MAX_IMAGE_AGE_SECONDS = 3600  # 1 hour
-
-def cleanup_old_images():
-    """Remove images older than MAX_IMAGE_AGE_SECONDS."""
-    try:
-        now = time.time()
-        for filename in os.listdir(IMAGE_STORAGE_DIR):
-            filepath = os.path.join(IMAGE_STORAGE_DIR, filename)
-            if os.path.isfile(filepath) and (now - os.path.getmtime(filepath)) > MAX_IMAGE_AGE_SECONDS:
-                os.remove(filepath)
-    except Exception:
-        pass  # Best effort cleanup
 
 # --- CONFIGURATION ---
 APP_KEY = "pk_B1ajqj2fxCArV7du"
@@ -87,7 +67,6 @@ for suit in SUITS:
 
 ALL_CARDS = MAJOR_ARCANA + MINOR_ARCANA
 
-# Interpretation prompts for AI
 def get_tarot_interpretation_prompt(card, position, question):
     arcana_type = "Major Arcana" if card in MAJOR_ARCANA else "Minor Arcana"
     return f"""You are an expert tarot reader with deep knowledge of symbolism, archetypes, and spiritual guidance.
@@ -115,7 +94,6 @@ def generate_code_challenge(verifier):
 
 @app.route('/')
 def index():
-    cleanup_old_images()
     has_token = 'access_token' in session
     return render_template('index.html', logged_in=has_token)
 
@@ -202,6 +180,7 @@ def callback():
 
 @app.route('/read', methods=['POST'])
 def read():
+    """Get tarot reading metadata and interpretations (no images)."""
     if 'access_token' not in session:
         return jsonify({"error": "Please connect your wallet first"}), 401
     
@@ -216,136 +195,113 @@ def read():
     access_token = session['access_token']
     
     try:
-        # Draw 3 random cards (Past, Present, Future)
+        # Draw 3 random cards
         drawn_cards = random.sample(ALL_CARDS, 3)
         positions = ["Past", "Present", "Future"]
         
-        # Generate interpretations for each card
-        interpretations = []
+        # Generate interpretations
+        readings = []
         for i, card in enumerate(drawn_cards):
             prompt = get_tarot_interpretation_prompt(card, positions[i], question)
             
             text_res = requests.post(
                 TEXT_API_URL,
-                headers={
-                    "Authorization": f"Bearer {access_token}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": DEFAULT_TEXT_MODEL,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "max_tokens": 300,
-                    "temperature": 0.8
-                },
+                headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"},
+                json={"model": DEFAULT_TEXT_MODEL, "messages": [{"role": "user", "content": prompt}], "max_tokens": 300, "temperature": 0.8},
                 timeout=60
             )
             
+            interpretation = None
             if text_res.status_code == 200:
                 try:
                     text_data = text_res.json()
-                    # Handle both success and error responses from Pollinations API
                     if "error" in text_data:
-                        interpretation = f"[API error: {text_data.get('error', {}).get('message', 'Unknown error')}]"
+                        interpretation = f"[API error: {text_data.get('error', {}).get('message', 'Unknown')}]"
                     elif "choices" in text_data and len(text_data["choices"]) > 0:
                         msg = text_data["choices"][0].get("message", {})
-                        if msg.get("role") == "tool_call":
-                            interpretation = msg.get("content", {}).get("content", "Reading unavailable")
-                        else:
-                            interpretation = msg.get("content", "Reading unavailable")
+                        interpretation = msg.get("content", "Reading unavailable")
                     else:
-                        interpretation = "Reading unavailable (unexpected response format)"
+                        interpretation = "Reading unavailable"
                 except Exception:
                     interpretation = "Reading unavailable (invalid response)"
             else:
-                interpretation = f"[Reading error: {text_res.status_code}]"
+                interpretation = f"[Error: {text_res.status_code}]"
             
-            interpretations.append({
-                "card": card,
+            readings.append({
                 "position": positions[i],
-                "interpretation": interpretation
+                "card_name": card["name"],
+                "card_type": "Major Arcana" if card in MAJOR_ARCANA else "Minor Arcana",
+                "keywords": card.get("keywords", ""),
+                "interpretation": interpretation,
+                "image_ready": False
             })
         
-        # Generate 3 tarot card images and save locally
-        image_filenames = []
-        for i, card in enumerate(drawn_cards):
-            card_prompt = f"""Tarot card illustration of "{card['name']}". 
-            {card.get('keywords', '')}. 
-            Mystical, surreal, dark ambient atmosphere, glowing symbols, 
-            celestial background, esoteric art style, rich colors, dramatic lighting, 
-            vintage tarot aesthetic, highly detailed, 800x600"""
-            
-            img_res = requests.post(
-                IMAGE_API_URL,
-                headers={
-                    "Authorization": f"Bearer {access_token}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": DEFAULT_IMAGE_MODEL,
-                    "prompt": card_prompt,
-                    "width": 800,
-                    "height": 600,
-                    "n": 1
-                },
-                timeout=120
-            )
-            
-            image_filename = None
-            if img_res.status_code == 200:
-                try:
-                    if 'application/json' in img_res.headers.get('Content-Type', ''):
-                        img_data = img_res.json()
-                        if isinstance(img_data.get("data"), list) and len(img_data["data"]) > 0:
-                            b64_data = img_data["data"][0].get("b64_json")
-                            if b64_data:
-                                # Save to file
-                                filename = f"{secrets.token_hex(16)}.jpg"
-                                filepath = os.path.join(IMAGE_STORAGE_DIR, filename)
-                                with open(filepath, 'wb') as f:
-                                    f.write(base64.b64decode(b64_data))
-                                image_filename = filename
-                    else:
-                        # Raw image bytes
-                        filename = f"{secrets.token_hex(16)}.jpg"
-                        filepath = os.path.join(IMAGE_STORAGE_DIR, filename)
-                        with open(filepath, 'wb') as f:
-                            f.write(img_res.content)
-                        image_filename = filename
-                except Exception:
-                    image_filename = None
-            image_filenames.append(image_filename)
-        
-        # Return only metadata and image URLs (not the base64 data)
         return jsonify({
             "success": True,
             "reading": {
                 "question": question,
-                "draw_date": secrets.token_hex(8),
-                "cards": [
-                    {
-                        "position": interpretations[i]["position"],
-                        "card_name": interpretations[i]["card"]["name"],
-                        "card_type": "Major Arcana" if interpretations[i]["card"] in MAJOR_ARCANA else "Minor Arcana",
-                        "keywords": interpretations[i]["card"].get("keywords", ""),
-                        "interpretation": interpretations[i]["interpretation"],
-                        "image_url": url_for('get_image', filename=image_filenames[i], _external=True) if image_filenames[i] else None
-                    }
-                    for i in range(3)
-                ]
+                "draw_id": secrets.token_hex(8),
+                "cards": readings
             }
         })
     
     except Exception as e:
         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
-@app.route('/image/<filename>')
-def get_image(filename):
-    """Serve a generated image by filename."""
-    cleanup_old_images()
+@app.route('/generate-image', methods=['POST'])
+def generate_image():
+    """Generate a single tarot card image and return it as base64."""
+    if 'access_token' not in session:
+        return jsonify({"error": "Please connect your wallet first"}), 401
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid request"}), 400
+    
+    card_name = data.get('card_name', '').strip()
+    card_keywords = data.get('keywords', '')
+    
+    if not card_name:
+        return jsonify({"error": "Card name required"}), 400
+    
+    access_token = session['access_token']
+    
     try:
-        return send_from_directory(IMAGE_STORAGE_DIR, filename)
-    except Exception:
-        return jsonify({"error": "Image not found"}), 404
+        card_prompt = f"""Tarot card illustration of "{card_name}". 
+        {card_keywords}. 
+        Mystical, surreal, dark ambient atmosphere, glowing symbols, 
+        celestial background, esoteric art style, rich colors, dramatic lighting, 
+        vintage tarot aesthetic, highly detailed, 800x600"""
+        
+        img_res = requests.post(
+            IMAGE_API_URL,
+            headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"},
+            json={
+                "model": DEFAULT_IMAGE_MODEL,
+                "prompt": card_prompt,
+                "width": 800,
+                "height": 600,
+                "n": 1
+            },
+            timeout=120
+        )
+        
+        if img_res.status_code == 200:
+            try:
+                if 'application/json' in img_res.headers.get('Content-Type', ''):
+                    img_data = img_res.json()
+                    if isinstance(img_data.get("data"), list) and len(img_data["data"]) > 0:
+                        b64 = img_data["data"][0].get("b64_json")
+                        if b64:
+                            return jsonify({"success": True, "image": b64})
+                return jsonify({"error": "No image data in response"}), 500
+            except Exception as e:
+                return jsonify({"error": f"Failed to process image: {str(e)}"}), 500
+        else:
+            return jsonify({"error": f"Image generation failed: {img_res.status_code}"}), img_res.status_code
+    
+    except Exception as e:
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 @app.route('/disconnect')
 def disconnect():
