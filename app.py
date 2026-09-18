@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 
 # --- CONFIGURATION ---
-APP_KEY = "pk_I7Juq9TCkV9jG1wL"
+APP_KEY = "pk_B1ajqj2fxCArV7du"
 APP_REDIRECT_URI = "https://web-production-823a3.up.railway.app/callback"
 POLLINATIONS_AUTHORIZE_URL = "https://enter.pollinations.ai/authorize"
 POLLINATIONS_TOKEN_URL = "https://enter.pollinations.ai/api/oauth/token"
