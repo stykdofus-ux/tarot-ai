@@ -40,7 +40,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Subtle floating particles */
         body::before {
             content: '';
             position: fixed;
@@ -72,7 +71,6 @@
             padding: 24px 20px 40px;
         }
 
-        /* Header */
         .header {
             text-align: center;
             padding: 20px 0 32px;
@@ -117,12 +115,8 @@
             font-weight: 300;
         }
 
-        .subtitle span {
-            color: var(--gold);
-            font-weight: 500;
-        }
+        .subtitle span { color: var(--gold); font-weight: 500; }
 
-        /* Decorative divider */
         .divider {
             display: flex;
             align-items: center;
@@ -138,13 +132,8 @@
             background: linear-gradient(90deg, transparent, var(--border-accent), transparent);
         }
 
-        .divider-icon {
-            color: var(--gold);
-            font-size: 0.7rem;
-            opacity: 0.6;
-        }
+        .divider-icon { color: var(--gold); font-size: 0.7rem; opacity: 0.6; }
 
-        /* Auth Card */
         .auth-card {
             background: var(--bg-card);
             border: 1px solid var(--border-subtle);
@@ -160,11 +149,9 @@
         .auth-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 50%;
+            top: 0; left: 50%;
             transform: translateX(-50%);
-            width: 200px;
-            height: 1px;
+            width: 200px; height: 1px;
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
             opacity: 0.5;
         }
@@ -226,9 +213,7 @@
             box-shadow: 0 8px 25px rgba(139, 111, 192, 0.4);
         }
 
-        .connect-btn:hover::before {
-            opacity: 1;
-        }
+        .connect-btn:hover::before { opacity: 1; }
 
         .auth-note {
             font-size: 0.72rem;
@@ -240,11 +225,8 @@
             gap: 6px;
         }
 
-        .auth-note .lock-icon {
-            font-size: 0.65rem;
-        }
+        .auth-note .lock-icon { font-size: 0.65rem; }
 
-        /* Connected Bar */
         .connected-bar {
             display: none;
             background: linear-gradient(90deg, rgba(139, 111, 192, 0.1), rgba(139, 111, 192, 0.05));
@@ -266,8 +248,7 @@
         }
 
         .connected-status .dot {
-            width: 8px;
-            height: 8px;
+            width: 8px; height: 8px;
             background: #7dcd8e;
             border-radius: 50%;
             box-shadow: 0 0 8px rgba(125, 205, 142, 0.5);
@@ -279,10 +260,7 @@
             50% { opacity: 0.6; transform: scale(0.85); }
         }
 
-        .connected-info {
-            color: var(--text-muted);
-            font-size: 0.82rem;
-        }
+        .connected-info { color: var(--text-muted); font-size: 0.82rem; }
 
         .disconnect-btn {
             background: transparent;
@@ -302,7 +280,6 @@
             border-color: rgba(196, 90, 90, 0.5);
         }
 
-        /* Reading Section */
         .reading-section { display: none; }
 
         .question-box {
@@ -335,9 +312,7 @@
             transition: all 0.2s;
         }
 
-        .question-input::placeholder {
-            color: var(--text-dim);
-        }
+        .question-input::placeholder { color: var(--text-dim); }
 
         .question-input:focus {
             outline: none;
@@ -378,22 +353,12 @@
             transform: translateY(-2px);
         }
 
-        .read-btn:hover:not(:disabled)::after {
-            opacity: 1;
-        }
+        .read-btn:hover:not(:disabled)::after { opacity: 1; }
 
-        .read-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .read-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        .read-btn .btn-icon {
-            display: inline-block;
-            margin-right: 8px;
-        }
+        .read-btn .btn-icon { display: inline-block; margin-right: 8px; }
 
-        /* Results */
         .results {
             margin-top: 32px;
             display: none;
@@ -435,7 +400,31 @@
             margin-top: 8px;
         }
 
-        /* Card Slider */
+        /* Pollinations credit badge */
+        .pollinations-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(139, 111, 192, 0.08);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            font-size: 0.68rem;
+            color: var(--text-dim);
+            margin-bottom: 16px;
+        }
+
+        .pollinations-badge .poll-icon {
+            font-size: 0.8rem;
+        }
+
+        .pollinations-badge a {
+            color: var(--accent-purple);
+            text-decoration: none;
+        }
+
+        .pollinations-badge a:hover { color: var(--accent-glow); }
+
         .card-slider {
             display: flex;
             flex-direction: column;
@@ -466,9 +455,7 @@
         .card-slide::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: 2px;
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
             opacity: 0.3;
@@ -503,14 +490,11 @@
             transition: border-color 0.3s;
         }
 
-        .card-image:hover {
-            border-color: var(--border-accent);
-        }
+        .card-image:hover { border-color: var(--border-accent); }
 
         .card-image-loader {
             display: inline-block;
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             border: 3px solid var(--border-subtle);
             border-top-color: var(--accent-purple);
             border-radius: 50%;
@@ -549,13 +533,8 @@
             font-weight: 300;
         }
 
-        .card-interpretation p {
-            margin-bottom: 8px;
-        }
-
-        .card-interpretation p:last-child {
-            margin-bottom: 0;
-        }
+        .card-interpretation p { margin-bottom: 8px; }
+        .card-interpretation p:last-child { margin-bottom: 0; }
 
         .image-unavailable {
             color: #c45a5a;
@@ -567,7 +546,6 @@
             gap: 6px;
         }
 
-        /* Footer */
         .footer {
             text-align: center;
             margin-top: 36px;
@@ -577,15 +555,8 @@
             color: var(--text-dim);
         }
 
-        .footer a {
-            color: var(--accent-purple);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .footer a:hover {
-            color: var(--accent-glow);
-        }
+        .footer a { color: var(--accent-purple); text-decoration: none; transition: color 0.2s; }
+        .footer a:hover { color: var(--accent-glow); }
 
         .footer .credit {
             display: inline-flex;
@@ -593,7 +564,33 @@
             gap: 6px;
         }
 
-        /* Responsive */
+        .model-info {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .model-tag {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 3px 8px;
+            background: rgba(139, 111, 192, 0.06);
+            border: 1px solid var(--border-subtle);
+            border-radius: 4px;
+        }
+
+        .model-tag a {
+            color: var(--accent-purple);
+            text-decoration: none;
+        }
+
+        .model-tag a:hover { color: var(--accent-glow); }
+
         @media (max-width: 480px) {
             .container { padding: 16px 14px 30px; }
             .logo { font-size: 2rem; letter-spacing: 4px; }
@@ -601,11 +598,14 @@
             .card-image { max-width: 220px; }
         }
 
-        /* Loading spinner for the main button */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--border-accent); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-purple); }
+
         .spinner {
             display: inline-block;
-            width: 16px;
-            height: 16px;
+            width: 16px; height: 16px;
             border: 2px solid rgba(201, 169, 110, 0.3);
             border-top-color: var(--gold);
             border-radius: 50%;
@@ -614,24 +614,7 @@
             vertical-align: middle;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-deep);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-accent);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-purple);
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -657,7 +640,7 @@
             <a href="/connect" class="connect-btn">Connect Wallet</a>
             <div class="auth-note">
                 <span class="lock-icon">🔐</span>
-                Secure • Your tokens stay in your session • BYOP
+                Secure • Your tokens stay in your session • BYOP Pollinations
             </div>
         </div>
 
@@ -682,11 +665,19 @@
 
             <div class="results" id="results">
                 <div class="results-header">
+                    <div class="pollinations-badge">
+                        <span class="poll-icon">✦</span>
+                        Powered by <a href="https://pollinations.ai" target="_blank">Pollinations.ai</a>
+                    </div>
                     <div class="reading-label">Your Reading</div>
                     <div class="reading-title">✦ Three Cards ✦</div>
                     <div class="reading-question" id="displayQuestion"></div>
                 </div>
                 <div class="card-slider" id="cardSlider"></div>
+                <div class="model-info">
+                    <span class="model-tag">Text: <a href="https://gen.pollinations.ai/v1/models" target="_blank">qwen3-coder-30b-a3b-instruct</a></span>
+                    <span class="model-tag">Image: <a href="https://gen.pollinations.ai/v1/images/edits" target="_blank">lightning-image-turbo</a></span>
+                </div>
             </div>
 
             <div class="history-section" id="historySection">
@@ -698,10 +689,12 @@
 
     <footer class="footer">
         <div class="credit">
-            <span>Powered by</span>
+            <span>Built with</span>
             <a href="https://pollinations.ai" target="_blank">Pollinations.ai</a>
             <span>•</span>
-            <a href="https://enter.pollinations.ai" target="_blank">BYOP OAuth2</a>
+            <a href="https://enter.pollinations.ai" target="_blank">Connect User Wallets (BYOP)</a>
+            <span>•</span>
+            <a href="https://github.com/stykdofus-ux/tarot-ai" target="_blank">Source Code</a>
         </div>
     </footer>
 
