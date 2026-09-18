@@ -290,7 +290,7 @@
                 slide.className = 'card-slide';
                 slide.style.animationDelay = `${i * 0.2}s`;
                 
-                const imgSrc = card.image ? `data:image/jpeg;base64,${card.image}` : '';
+                const imgSrc = card.image_url ? card.image_url : '';
                 
                 slide.innerHTML = `
                     <span class="position-badge">${card.position}</span>
@@ -299,7 +299,7 @@
                     <div class="card-type">${card.card_type}</div>
                     <div class="card-keywords">${card.keywords}</div>
                     <div class="card-interpretation">${card.interpretation}</div>
-                    ${card.image ? '' : '<p style="color:#ff6b6b;font-size:0.8rem;margin-top:10px;">⚠ Image unavailable</p>'}
+                    ${card.image_url ? '' : '<p style="color:#ff6b6b;font-size:0.8rem;margin-top:10px;">⚠ Image unavailable</p>'}
                 `;
                 
                 cardSlider.appendChild(slide);

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, jsonify, url_for, session, redirect
+from flask import Flask, render_template, request, send_file, jsonify, url_for, session, redirect, send_from_directory
 import requests
 import io
 import os
@@ -6,11 +6,31 @@ import secrets
 import random
 import hashlib
 import base64
+import time
 from urllib.parse import urlencode
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 # Use a fixed secret key so sessions survive across deployments
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'oracle-mystique-secret-key-2026')
+
+# Storage for generated images (in production, use S3 or similar)
+IMAGE_STORAGE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'generated_images')
+os.makedirs(IMAGE_STORAGE_DIR, exist_ok=True)
+
+# Cleanup old images periodically (called on each request)
+MAX_IMAGE_AGE_SECONDS = 3600  # 1 hour
+
+def cleanup_old_images():
+    """Remove images older than MAX_IMAGE_AGE_SECONDS."""
+    try:
+        now = time.time()
+        for filename in os.listdir(IMAGE_STORAGE_DIR):
+            filepath = os.path.join(IMAGE_STORAGE_DIR, filename)
+            if os.path.isfile(filepath) and (now - os.path.getmtime(filepath)) > MAX_IMAGE_AGE_SECONDS:
+                os.remove(filepath)
+    except Exception:
+        pass  # Best effort cleanup
 
 # --- CONFIGURATION ---
 APP_KEY = "pk_B1ajqj2fxCArV7du"
@@ -95,6 +115,7 @@ def generate_code_challenge(verifier):
 
 @app.route('/')
 def index():
+    cleanup_old_images()
     has_token = 'access_token' in session
     return render_template('index.html', logged_in=has_token)
 
@@ -185,6 +206,8 @@ def read():
         return jsonify({"error": "Please connect your wallet first"}), 401
     
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid request body"}), 400
     question = data.get('question', '').strip()
     
     if not question:
@@ -242,8 +265,8 @@ def read():
                 "interpretation": interpretation
             })
         
-        # Generate 3 tarot card images
-        images = []
+        # Generate 3 tarot card images and save locally
+        image_filenames = []
         for i, card in enumerate(drawn_cards):
             card_prompt = f"""Tarot card illustration of "{card['name']}". 
             {card.get('keywords', '')}. 
@@ -267,23 +290,32 @@ def read():
                 timeout=120
             )
             
+            image_filename = None
             if img_res.status_code == 200:
                 try:
-                    if img_res.headers.get('Content-Type') == 'application/json':
+                    if 'application/json' in img_res.headers.get('Content-Type', ''):
                         img_data = img_res.json()
-                        if "data" in img_data and isinstance(img_data["data"], list) and len(img_data["data"]) > 0 and "b64_json" in img_data["data"][0]:
-                            # Store the base64 STRING (not decoded bytes) for JSON serialization
-                            images.append(img_data["data"][0]["b64_json"])
-                        else:
-                            images.append(None)
+                        if isinstance(img_data.get("data"), list) and len(img_data["data"]) > 0:
+                            b64_data = img_data["data"][0].get("b64_json")
+                            if b64_data:
+                                # Save to file
+                                filename = f"{secrets.token_hex(16)}.jpg"
+                                filepath = os.path.join(IMAGE_STORAGE_DIR, filename)
+                                with open(filepath, 'wb') as f:
+                                    f.write(base64.b64decode(b64_data))
+                                image_filename = filename
                     else:
-                        # Raw image bytes — base64 encode for JSON
-                        images.append(base64.b64encode(img_res.content).decode('ascii'))
+                        # Raw image bytes
+                        filename = f"{secrets.token_hex(16)}.jpg"
+                        filepath = os.path.join(IMAGE_STORAGE_DIR, filename)
+                        with open(filepath, 'wb') as f:
+                            f.write(img_res.content)
+                        image_filename = filename
                 except Exception:
-                    images.append(None)
-            else:
-                images.append(None)
+                    image_filename = None
+            image_filenames.append(image_filename)
         
+        # Return only metadata and image URLs (not the base64 data)
         return jsonify({
             "success": True,
             "reading": {
@@ -296,7 +328,7 @@ def read():
                         "card_type": "Major Arcana" if interpretations[i]["card"] in MAJOR_ARCANA else "Minor Arcana",
                         "keywords": interpretations[i]["card"].get("keywords", ""),
                         "interpretation": interpretations[i]["interpretation"],
-                        "image": images[i] if images[i] else None
+                        "image_url": url_for('get_image', filename=image_filenames[i], _external=True) if image_filenames[i] else None
                     }
                     for i in range(3)
                 ]
@@ -304,7 +336,16 @@ def read():
         })
     
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+@app.route('/image/<filename>')
+def get_image(filename):
+    """Serve a generated image by filename."""
+    cleanup_old_images()
+    try:
+        return send_from_directory(IMAGE_STORAGE_DIR, filename)
+    except Exception:
+        return jsonify({"error": "Image not found"}), 404
 
 @app.route('/disconnect')
 def disconnect():
