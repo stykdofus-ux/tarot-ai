@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oracle Mystique | Tirage de Tarot IA</title>
+    <style>
+        :root { 
+            --accent: #9b59b6; 
+            --accent2: #8e44ad; 
+            --bg: #0d0a0f; 
+            --card: #1a1423; 
+            --card2: #251d33; 
+            --text: #e8dff0; 
+            --gold: #d4af37;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Georgia', 'Times New Roman', serif; 
+            min-height: 100vh;
+            background-image: radial-gradient(ellipse at top, #1a1423 0%, #0d0a0f 70%);
+        }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        
+        /* Header */
+        .header { text-align: center; padding: 30px 0; border-bottom: 1px solid #2a2035; margin-bottom: 20px; }
+        .logo { font-size: 2.2rem; font-weight: bold; background: linear-gradient(135deg, var(--gold), #f0e68c, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px; }
+        .subtitle { color: #8b7da8; font-style: italic; margin-top: 5px; font-size: 0.9rem; }
+        
+        /* Auth Section */
+        .auth-section { 
+            background: linear-gradient(135deg, var(--card), var(--card2)); 
+            border: 1px solid #3a2d4a; 
+            border-radius: 16px; 
+            padding: 30px; 
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(155, 89, 182, 0.15);
+        }
+        .auth-icon { font-size: 3rem; margin-bottom: 15px; }
+        .auth-title { font-size: 1.3rem; margin-bottom: 10px; color: var(--gold); }
+        .auth-desc { color: #8b7da8; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+        .connect-btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white; padding: 14px 32px; border-radius: 10px;
+            text-decoration: none; font-weight: bold; font-size: 1rem;
+            display: inline-block; transition: all 0.3s; cursor: pointer; border: none;
+            font-family: inherit; letter-spacing: 1px;
+        }
+        .connect-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(155, 89, 182, 0.4); }
+        .auth-note { font-size: 0.75rem; color: #6b5d7a; margin-top: 15px; }
+        
+        /* Reading Section */
+        .reading-section { display: none; }
+        
+        .question-box {
+            background: var(--card); border: 1px solid #3a2d4a; border-radius: 12px;
+            padding: 20px; margin-bottom: 20px;
+        }
+        .question-label { font-size: 0.8rem; color: #8b7da8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .question-input { 
+            width: 100%; padding: 14px; background: #0d0a0f; border: 1px solid #3a2d4a;
+            color: var(--text); border-radius: 8px; font-family: inherit; font-size: 1rem;
+        }
+        .question-input:focus { outline: none; border-color: var(--accent); }
+        
+        .read-btn {
+            width: 100%; padding: 16px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: white; border: none; border-radius: 10px; font-weight: bold;
+            font-size: 1.1rem; cursor: pointer; transition: all 0.3s; font-family: inherit;
+            letter-spacing: 2px;
+        }
+        .read-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(155, 89, 182, 0.4); }
+        .read-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        
+        /* Results */
+        .results { margin-top: 30px; display: none; }
+        .results-header { text-align: center; margin-bottom: 25px; }
+        .reading-title { font-size: 1.5rem; color: var(--gold); margin-bottom: 5px; }
+        .reading-question { color: #8b7da8; font-style: italic; }
+        
+        .card-slider { position: relative; margin-bottom: 30px; }
+        .card-slide {
+            background: var(--card); border: 1px solid #3a2d4a; border-radius: 16px;
+            padding: 25px; margin-bottom: 20px; text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .position-badge {
+            display: inline-block; padding: 5px 15px; border-radius: 20px;
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px;
+            margin-bottom: 15px; background: rgba(155, 89, 182, 0.2); color: var(--accent);
+            border: 1px solid rgba(155, 89, 182, 0.3);
+        }
+        
+        .card-image { 
+            width: 100%; max-width: 300px; height: auto; margin: 0 auto 15px;
+            border-radius: 8px; border: 2px solid #3a2d4a; }
+        
+        .card-name { font-size: 1.4rem; color: var(--gold); margin-bottom: 5px; font-weight: bold; }
+        .card-type { font-size: 0.8rem; color: #8b7da8; margin-bottom: 15px; }
+        .card-keywords { font-size: 0.85rem; color: #b8a9d0; font-style: italic; margin-bottom: 15px; }
+        
+        .card-interpretation { 
+            text-align: left; line-height: 1.7; color: #d0c5e0; font-size: 0.95rem; }
+        .card-interpretation p { margin-bottom: 10px; }
+        
+        /* Connected state */
+        .connected-bar {
+            display: none; background: rgba(155, 89, 182, 0.15); border: 1px solid rgba(155, 89, 182, 0.3);
+            border-radius: 8px; padding: 10px 15px; margin-bottom: 20px; align-items: center;
+        }
+        .connected-status { color: #00ff88; font-size: 0.85rem; margin-right: 10px; }
+        .disconnect-btn {
+            background: transparent; color: #ff6b6b; border: 1px solid #ff6b6b;
+            padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 0.8rem;
+            text-decoration: none; font-family: inherit;
+        }
+        .disconnect-btn:hover { background: rgba(255, 107, 107, 0.1); }
+        
+        /* Footer */
+        .footer { text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #2a2035; font-size: 0.8rem; color: #6b5d7a; }
+        .footer a { color: var(--accent); text-decoration: none; }
+        
+        /* Loader */
+        .loader { display: none; margin: 20px auto; width: 50px; height: 50px; }
+        .loader-ring { 
+            width: 50px; height: 50px; border: 3px solid #2a2035; border-top-color: var(--accent);
+            border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* History */
+        .history-section { margin-top: 30px; display: none; }
+        .history-title { font-size: 1.1rem; color: var(--gold); margin-bottom: 15px; text-align: center; }
+        .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+        .history-card { 
+            background: var(--card); border: 1px solid #3a2d4a; border-radius: 8px;
+            padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s;
+        }
+        .history-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .history-card-name { font-size: 0.85rem; color: var(--gold); margin-bottom: 3px; }
+        .history-card-date { font-size: 0.7rem; color: #6b5d7a; }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container { padding: 15px; }
+            .auth-section { padding: 20px; }
+            .logo { font-size: 1.8rem; }
+        }
+        
+        /* Decorative */
+        .moon-phase { position: fixed; top: 20px; right: 20px; width: 50px; height: 50px; opacity: 0.15; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">ORACLE MYSTIQUE</div>
+            <div class="subtitle">Tirage de Tarot par Intelligence Artificielle</div>
+        </header>
+
+        <!-- Auth Section -->
+        <div class="auth-section" id="authSection">
+            <div class="auth-icon">🔮</div>
+            <div class="auth-title">Connectez votre portefeuille</div>
+            <div class="auth-desc">
+                Autorisez Oracle Mystique à utiliser vos propres tokens Pollinations pour les tirages de tarot. 
+                Aucun coût pour l'application — vous payez avec votre propre équilibre.
+            </div>
+            <a href="/connect" class="connect-btn">Connecter le Portefeuille</a>
+            <div class="auth-note">
+                🔐 Sécuritaire • Vos tokens ne quittent jamais votre session • BYOP Pollinations
+            </div>
+        </div>
+
+        <!-- Connected State -->
+        <div class="connected-bar" id="connectedBar">
+            <span class="connected-status">✓ Connecté</span>
+            <span style="color: #8b7da8; font-size: 0.85rem;" id="userInfo">Utilisateur</span>
+            <a href="/disconnect" class="disconnect-btn">Se déconnecter</a>
+        </div>
+
+        <!-- Reading Section -->
+        <div class="reading-section" id="readingSection">
+            <div class="question-box">
+                <div class="question-label">Votre question</div>
+                <input type="text" class="question-input" id="questionInput" placeholder="Ex: Quel est mon potentiel dans cette nouvelle opportunité ?">
+            </div>
+            <button class="read-btn" id="readBtn">🔮 Tirer les Cartes</button>
+            <div class="loader" id="loader"><div class="loader-ring"></div></div>
+
+            <!-- Results -->
+            <div class="results" id="results">
+                <div class="results-header">
+                    <div class="reading-title">Votre Tirage</div>
+                    <div class="reading-question" id="displayQuestion"></div>
+                </div>
+                <div class="card-slider" id="cardSlider"></div>
+            </div>
+
+            <!-- History -->
+            <div class="history-section" id="historySection">
+                <div class="history-title">📜 Vos Tirages Récents</div>
+                <div class="history-grid" id="historyGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        Propulsé par <a href="https://pollinations.ai" target="_blank">Pollinations.ai</a> • 
+        Modèle: <a href="https://enter.pollinations.ai" target="_blank">Connect User Wallets (BYOP)</a>
+    </footer>
+
+    <script>
+        const authSection = document.getElementById('authSection');
+        const connectedBar = document.getElementById('connectedBar');
+        const readingSection = document.getElementById('readingSection');
+        const results = document.getElementById('results');
+        const historySection = document.getElementById('historySection');
+        const readBtn = document.getElementById('readBtn');
+        const loader = document.getElementById('loader');
+        const questionInput = document.getElementById('questionInput');
+        const displayQuestion = document.getElementById('displayQuestion');
+        const cardSlider = document.getElementById('cardSlider');
+        const historyGrid = document.getElementById('historyGrid');
+
+        // Check if logged in (Flask passes this)
+        const loggedIn = {{ logged_in | tojson }};
+        if (loggedIn) {
+            showConnected();
+        }
+
+        function showConnected() {
+            authSection.style.display = 'none';
+            connectedBar.style.display = 'flex';
+            readingSection.style.display = 'block';
+        }
+
+        readBtn.addEventListener('click', async () => {
+            const question = questionInput.value.trim();
+            if (!question) {
+                questionInput.style.borderColor = '#ff6b6b';
+                setTimeout(() => questionInput.style.borderColor = '', 2000);
+                return;
+            }
+
+            readBtn.disabled = true;
+            readBtn.textContent = '🃏 Tirage en cours...';
+            loader.style.display = 'block';
+            results.style.display = 'none';
+
+            try {
+                const res = await fetch('/read', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    displayQuestion.textContent = `"${data.reading.question}"`;
+                    renderCards(data.reading.cards);
+                    results.style.display = 'block';
+                    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                    // Save to history
+                    saveToHistory(data.reading);
+                } else {
+                    alert('Erreur: ' + (data.error || 'Tirage impossible'));
+                }
+            } catch (e) {
+                alert('Erreur de connexion: ' + e.message);
+            } finally {
+                readBtn.disabled = false;
+                readBtn.textContent = '🔮 Tirer les Cartes';
+                loader.style.display = 'none';
+            }
+        });
+
+        function renderCards(cards) {
+            cardSlider.innerHTML = '';
+            cards.forEach((card, i) => {
+                const slide = document.createElement('div');
+                slide.className = 'card-slide';
+                slide.style.animationDelay = `${i * 0.2}s`;
+                
+                const imgSrc = card.image ? `data:image/jpeg;base64,${card.image.toString('base64') || btoa(String.fromCharCode(...new Uint8Array(card.image)))}` : '';
+                
+                slide.innerHTML = `
+                    <span class="position-badge">${card.position}</span>
+                    <img class="card-image" src="${imgSrc || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 300%22><rect fill=%22%231a1423%22 width=%22200%22 height=%22300%22/><text fill=%22%238b7da8%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2214%22>Carte ${i+1}</text></svg>'}" alt="${card.card_name}">
+                    <div class="card-name">${card.card_name}</div>
+                    <div class="card-type">${card.card_type}</div>
+                    <div class="card-keywords">${card.keywords}</div>
+                    <div class="card-interpretation">${card.interpretation}</div>
+                `;
+                
+                cardSlider.appendChild(slide);
+            });
+        }
+
+        function saveToHistory(reading) {
+            let history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+            history.unshift({
+                question: reading.question,
+                cards: reading.cards.map(c => c.card_name).join(', '),
+                date: new Date().toLocaleString('fr-FR')
+            });
+            history = history.slice(0, 10);
+            localStorage.setItem('tarotHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+            if (history.length === 0) {
+                historySection.style.display = 'none';
+                return;
+            }
+            
+            historySection.style.display = 'block';
+            historyGrid.innerHTML = '';
+            history.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'history-card';
+                card.innerHTML = `
+                    <div class="history-card-name">${item.cards}</div>
+                    <div class="history-card-date">${item.date}</div>
+                    <div style="font-size:0.75rem;color:#8b7da8;margin-top:3px;font-style:italic;">"${item.question}"</div>
+                `;
+                card.addEventListener('click', () => {
+                    questionInput.value = item.question;
+                    questionInput.focus();
+                });
+                historyGrid.appendChild(card);
+            });
+        }
+
+        renderHistory();
+    </script>
+</body>
+</html>
