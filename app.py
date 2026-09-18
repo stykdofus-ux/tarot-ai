@@ -219,7 +219,17 @@ def read():
             if text_res.status_code == 200:
                 try:
                     text_data = text_res.json()
-                    interpretation = text_data.get("choices", [{}])[0].get("message", {}).get("content", "Reading unavailable")
+                    # Handle both success and error responses from Pollinations API
+                    if "error" in text_data:
+                        interpretation = f"[API error: {text_data.get('error', {}).get('message', 'Unknown error')}]"
+                    elif "choices" in text_data and len(text_data["choices"]) > 0:
+                        msg = text_data["choices"][0].get("message", {})
+                        if msg.get("role") == "tool_call":
+                            interpretation = msg.get("content", {}).get("content", "Reading unavailable")
+                        else:
+                            interpretation = msg.get("content", "Reading unavailable")
+                    else:
+                        interpretation = "Reading unavailable (unexpected response format)"
                 except Exception:
                     interpretation = "Reading unavailable (invalid response)"
             else:
