@@ -211,6 +211,9 @@ def read():
                 timeout=60
             )
             
+            # Log the Pollinations API call for transparency
+            app.logger.info(f"Pollinations Text API call: model={DEFAULT_TEXT_MODEL}, endpoint={TEXT_API_URL}, status={text_res.status_code}")
+            
             interpretation = None
             if text_res.status_code == 200:
                 try:
@@ -246,7 +249,13 @@ def read():
         })
     
     except Exception as e:
-        return jsonify({"error": f"Server error: {str(e)}"}), 500
+        # Return detailed error for debugging
+        import traceback
+        return jsonify({
+            "error": "Server error",
+            "details": str(e),
+            "traceback": traceback.format_exc().split('\n')[-5:]
+        }), 500
 
 @app.route('/generate-image', methods=['POST'])
 def generate_image():
@@ -286,6 +295,9 @@ def generate_image():
             timeout=120
         )
         
+        # Log the Pollinations API call for transparency
+        app.logger.info(f"Pollinations Image API call: model={DEFAULT_IMAGE_MODEL}, endpoint={IMAGE_API_URL}, status={img_res.status_code}")
+        
         if img_res.status_code == 200:
             try:
                 if 'application/json' in img_res.headers.get('Content-Type', ''):
@@ -296,12 +308,14 @@ def generate_image():
                             return jsonify({"success": True, "image": b64})
                 return jsonify({"error": "No image data in response"}), 500
             except Exception as e:
-                return jsonify({"error": f"Failed to process image: {str(e)}"}), 500
+                import traceback
+                return jsonify({"error": f"Failed to process image", "details": str(e)[:200]}), 500
         else:
-            return jsonify({"error": f"Image generation failed: {img_res.status_code}"}), img_res.status_code
+            return jsonify({"error": f"Image generation failed: {img_res.status_code}", "details": img_res.text}), img_res.status_code
     
     except Exception as e:
-        return jsonify({"error": f"Server error: {str(e)}"}), 500
+        import traceback
+        return jsonify({"error": "Server error", "details": str(e)[:200]})
 
 @app.route('/disconnect')
 def disconnect():
